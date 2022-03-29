@@ -80,7 +80,7 @@ std::pair<
     std::shared_ptr<inference::GRPCInferenceService::Stub>>
 GetChannelStub(
     const std::string& url, bool use_ssl, const SslOptions& ssl_options,
-    const KeepAliveOptions& keepalive_options)
+    const KeepAliveOptions& keepalive_options, bool force_new_connection)
 {
   std::lock_guard<std::mutex> lock(grpc_channel_stub_map_mtx_);
 
@@ -95,7 +95,8 @@ GetChannelStub(
   auto current_idx = channel_count.fetch_add(1);
   const auto& channel_itr = grpc_channel_stub_map_.find(
       url + std::to_string(current_idx / max_share_count));
-  if (channel_itr != grpc_channel_stub_map_.end()) {
+  if ((channel_itr != grpc_channel_stub_map_.end()) &&
+      (!force_new_connection)) {
     return channel_itr->second;
   } else {
     grpc::ChannelArguments arguments;
@@ -388,10 +389,12 @@ Error
 InferenceServerGrpcClient::Create(
     std::unique_ptr<InferenceServerGrpcClient>* client,
     const std::string& server_url, bool verbose, bool use_ssl,
-    const SslOptions& ssl_options, const KeepAliveOptions& keepalive_options)
+    const SslOptions& ssl_options, const KeepAliveOptions& keepalive_options,
+    bool force_new_connection)
 {
   client->reset(new InferenceServerGrpcClient(
-      server_url, verbose, use_ssl, ssl_options, keepalive_options));
+      server_url, verbose, use_ssl, ssl_options, keepalive_options,
+      force_new_connection));
   return Error::Success;
 }
 
@@ -1455,11 +1458,12 @@ InferenceServerGrpcClient::AsyncStreamTransfer()
 
 InferenceServerGrpcClient::InferenceServerGrpcClient(
     const std::string& url, bool verbose, bool use_ssl,
-    const SslOptions& ssl_options, const KeepAliveOptions& keepalive_options)
+    const SslOptions& ssl_options, const KeepAliveOptions& keepalive_options,
+    bool force_new_connection)
     : InferenceServerClient(verbose)
 {
-  auto channel_stub =
-      GetChannelStub(url, use_ssl, ssl_options, keepalive_options);
+  auto channel_stub = GetChannelStub(
+      url, use_ssl, ssl_options, keepalive_options, force_new_connection);
   stub_ = channel_stub.second;
 }
 
