@@ -131,9 +131,9 @@ GetChannelStub(
         grpc::CreateCustomChannel(url, credentials, arguments);
     std::shared_ptr<inference::GRPCInferenceService::Stub> stub =
         inference::GRPCInferenceService::NewStub(channel);
-    grpc_channel_stub_map_.insert(std::make_pair(
-        url + std::to_string(current_idx / max_share_count),
-        std::make_pair(channel, stub)));
+    grpc_channel_stub_map_
+        [url + std::to_string(current_idx / max_share_count)] =
+            std::make_pair(channel, stub);
 
     return std::make_pair(channel, stub);
   }
