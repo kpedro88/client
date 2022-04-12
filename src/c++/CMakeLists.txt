@@ -43,6 +43,9 @@ option(TRITON_KEEP_TYPEINFO "Keep typeinfo symbols by disabling ldscript" OFF)
 set(TRITON_COMMON_REPO_TAG "main" CACHE STRING "Tag for triton-inference-server/common repo")
 set(TRITON_CORE_REPO_TAG "main" CACHE STRING "Tag for triton-inference-server/core repo")
 
+set(TRITON_COMMON_REPO_URL "https://github.com/triton-inference-server/common.git" CACHE STRING "URL for triton-inference-server/common repo")
+set(TRITON_CORE_REPO_URL "https://github.com/triton-inference-server/core.git" CACHE STRING "URL for triton-inference-server/core repo")
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -54,7 +57,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   repo-common
-  GIT_REPOSITORY https://github.com/triton-inference-server/common.git
+  GIT_REPOSITORY ${TRITON_COMMON_REPO_URL}
   GIT_TAG ${TRITON_COMMON_REPO_TAG}
   GIT_SHALLOW ON
 )
@@ -66,7 +69,7 @@ if(TRITON_ENABLE_CC_GRPC OR TRITON_ENABLE_PERF_ANALYZER)
   if(TRITON_ENABLE_PERF_ANALYZER)
     FetchContent_Declare(
       repo-core
-      GIT_REPOSITORY https://github.com/triton-inference-server/core.git
+      GIT_REPOSITORY ${TRITON_CORE_REPO_URL}
       GIT_TAG ${TRITON_CORE_REPO_TAG}
       GIT_SHALLOW ON 
     )

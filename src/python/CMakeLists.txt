@@ -40,6 +40,7 @@ option(TRITON_ENABLE_TESTS "Include tests in build" OFF)
 option(TRITON_ENABLE_GPU "Enable GPU support in libraries" OFF)
 
 set(TRITON_COMMON_REPO_TAG "main" CACHE STRING "Tag for triton-inference-server/common repo")
+set(TRITON_COMMON_REPO_URL "https://github.com/triton-inference-server/common.git" CACHE STRING "URL for triton-inference-server/common repo")
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -52,7 +53,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   repo-common
-  GIT_REPOSITORY https://github.com/triton-inference-server/common.git
+  GIT_REPOSITORY ${TRITON_COMMON_REPO_URL}
   GIT_TAG ${TRITON_COMMON_REPO_TAG}
   GIT_SHALLOW ON
 )
